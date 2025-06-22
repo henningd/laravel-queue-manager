@@ -406,7 +406,8 @@
 $('#addWorkerForm').on('submit', function(e) {
     e.preventDefault();
     
-    $.post('{{ route("queue-manager.workers.create") }}', $(this).serialize())
+    const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+    $.post(`/${baseUrl}/workers`, $(this).serialize())
         .done(function(response) {
             $('#addWorkerModal').modal('hide');
             showAlert('Worker erfolgreich erstellt', 'success');
@@ -420,7 +421,8 @@ $('#addWorkerForm').on('submit', function(e) {
 $('#addQueueForm').on('submit', function(e) {
     e.preventDefault();
     
-    $.post('{{ route("queue-manager.queues.create") }}', $(this).serialize())
+    const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+    $.post(`/${baseUrl}/queues`, $(this).serialize())
         .done(function(response) {
             $('#addQueueModal').modal('hide');
             showAlert('Queue erfolgreich erstellt', 'success');
@@ -434,7 +436,8 @@ $('#addQueueForm').on('submit', function(e) {
 // Quick Actions
 function startAllWorkers() {
     if (confirm('Alle Worker starten?')) {
-        $.post('{{ route("queue-manager.restart-workers") }}')
+        const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+        $.post(`/${baseUrl}/restart-workers`)
             .done(function(response) {
                 showAlert('Alle Worker werden gestartet', 'success');
                 setTimeout(refreshData, 2000);
@@ -447,7 +450,8 @@ function startAllWorkers() {
 
 function restartAllWorkers() {
     if (confirm('Alle Worker neustarten?')) {
-        $.post('{{ route("queue-manager.restart-workers") }}')
+        const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+        $.post(`/${baseUrl}/restart-workers`)
             .done(function(response) {
                 showAlert('Alle Worker werden neugestartet', 'success');
                 setTimeout(refreshData, 3000);
@@ -467,7 +471,8 @@ function stopAllWorkers() {
 
 function retryFailedJobs() {
     if (confirm('Alle fehlgeschlagenen Jobs wiederholen?')) {
-        $.post('{{ route("queue-manager.retry-failed") }}')
+        const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+        $.post(`/${baseUrl}/retry-failed`)
             .done(function(response) {
                 showAlert('Fehlgeschlagene Jobs werden wiederholt', 'success');
                 setTimeout(refreshData, 2000);
