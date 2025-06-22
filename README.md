@@ -294,7 +294,7 @@ Beschränken Sie den Zugriff auf bestimmte IP-Adressen:
 ## Systemanforderungen
 
 - PHP 8.1 oder höher
-- Laravel 10.0 oder höher
+- Laravel 10.0, 11.0 oder 12.0
 - Unterstützte Queue-Treiber: database, redis, sync
 - Für Worker-Management: proc_open() und proc_get_status() Funktionen
 
