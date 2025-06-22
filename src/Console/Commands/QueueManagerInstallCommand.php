@@ -64,6 +64,11 @@ class QueueManagerInstallCommand extends Command
             $this->addRoutesToWebFile();
         }
 
+        // Add API routes to api.php
+        if ($this->confirm('Do you want to add Queue Manager API routes to routes/api.php?', false)) {
+            $this->addRoutesToApiFile();
+        }
+
         $this->info('Queue Manager installed successfully!');
         $this->line('');
         $this->line('Next steps:');
@@ -106,5 +111,42 @@ class QueueManagerInstallCommand extends Command
         $this->line('');
         $this->line('  Note: You can remove these routes from web.php if you prefer');
         $this->line('        to use automatic routing via the ServiceProvider.');
+    }
+
+    /**
+     * Add Queue Manager API routes to routes/api.php
+     */
+    protected function addRoutesToApiFile()
+    {
+        $apiRoutesPath = base_path('routes/api.php');
+        
+        if (!File::exists($apiRoutesPath)) {
+            $this->error('routes/api.php file not found!');
+            return;
+        }
+
+        $apiRoutesContent = File::get($apiRoutesPath);
+        
+        // Check if routes are already added
+        if (strpos($apiRoutesContent, 'queue-manager') !== false) {
+            $this->info('Queue Manager API routes already exist in routes/api.php');
+            return;
+        }
+
+        $apiRoutesToAdd = "\n// Queue Manager API Routes\nRoute::group([\n    'prefix' => 'queue-manager',\n    'middleware' => ['api'],\n    'as' => 'api.queue-manager.',\n], function () {\n    // Status and monitoring\n    Route::get('/status', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'status'])->name('status');\n    \n    // Workers API\n    Route::get('/workers', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'getWorkers'])->name('workers.index');\n    Route::post('/workers', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'createWorker'])->name('workers.create');\n    Route::post('/workers/{id}/start', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'startWorker'])->name('workers.start');\n    Route::post('/workers/{id}/stop', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'stopWorker'])->name('workers.stop');\n    Route::post('/workers/{id}/restart', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'restartWorker'])->name('workers.restart');\n    Route::delete('/workers/{id}', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'deleteWorker'])->name('workers.delete');\n    \n    // Queues API\n    Route::get('/queues', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'getQueues'])->name('queues.index');\n    Route::post('/queues', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'createQueue'])->name('queues.create');\n    Route::post('/queues/{id}/start-workers', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'startQueueWorkers'])->name('queues.start-workers');\n    Route::post('/queues/{id}/stop-workers', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'stopQueueWorkers'])->name('queues.stop-workers');\n    Route::post('/queues/{id}/clear-jobs', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'clearQueueJobs'])->name('queues.clear-jobs');\n    Route::post('/queues/{id}/clear-failed', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'clearQueueFailedJobs'])->name('queues.clear-failed');\n    \n    // Bulk operations\n    Route::post('/restart-workers', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'restartWorkers'])->name('restart-workers');\n    Route::post('/retry-failed', [\\HenningD\\LaravelQueueManager\\Http\\Controllers\\QueueManagerController::class, 'retryFailedJobs'])->name('retry-failed');\n});\n";
+
+        // Add routes at the end of the file
+        File::put($apiRoutesPath, $apiRoutesContent . $apiRoutesToAdd);
+        
+        $this->info('✓ Queue Manager API routes added to routes/api.php');
+        $this->line('  Added API routes:');
+        $this->line('    - GET /api/queue-manager/status');
+        $this->line('    - GET /api/queue-manager/workers');
+        $this->line('    - POST /api/queue-manager/workers');
+        $this->line('    - POST /api/queue-manager/workers/{id}/start');
+        $this->line('    - And all other API endpoints...');
+        $this->line('');
+        $this->line('  These routes use the "api" middleware and are prefixed with /api');
+        $this->line('  Perfect for external integrations and mobile apps.');
     }
 }
