@@ -1,437 +1,449 @@
 @extends('queue-manager::layout')
 
 @section('content')
-<div class="row mb-4">
-    <div class="col-12">
-        <h1 class="h3 mb-0">
-            <i class="fas fa-tachometer-alt me-2"></i>Queue Manager Dashboard
-        </h1>
-        <p class="text-muted">Überwachung und Verwaltung von Laravel Queues und Workern</p>
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="md:flex md:items-center md:justify-between">
+        <div class="min-w-0 flex-1">
+            <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                Queue Manager Dashboard
+            </h2>
+            <p class="mt-1 text-sm text-gray-500">
+                Überwachung und Verwaltung von Laravel Queues und Workern
+            </p>
+        </div>
+        <div class="mt-4 flex md:ml-4 md:mt-0">
+            <button type="button" onclick="refreshData()" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                Aktualisieren
+            </button>
+        </div>
     </div>
-</div>
 
-<!-- Status Cards -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card queue-stats h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-list-ul fa-3x mb-3"></i>
-                <h3 class="card-title">{{ $stats['total_queues'] ?? 0 }}</h3>
-                <p class="card-text">Konfigurierte Queues</p>
-                <small>{{ $stats['active_queues'] ?? 0 }} aktiv</small>
-            </div>
+    <!-- Stats -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Total Queues -->
+        <div class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6">
+            <dt>
+                <div class="absolute rounded-md bg-indigo-500 p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+                    </svg>
+                </div>
+                <p class="ml-16 truncate text-sm font-medium text-gray-500">Konfigurierte Queues</p>
+            </dt>
+            <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                <p class="text-2xl font-semibold text-gray-900">{{ $stats['total_queues'] ?? 0 }}</p>
+                <p class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                    {{ $stats['active_queues'] ?? 0 }} aktiv
+                </p>
+            </dd>
         </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card worker-stats h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-users fa-3x mb-3"></i>
-                <h3 class="card-title">{{ $stats['total_workers'] ?? 0 }}</h3>
-                <p class="card-text">Worker Prozesse</p>
-                <small>{{ $stats['running_workers'] ?? 0 }} laufend</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card system-stats h-100">
-            <div class="card-body text-center">
-                <i class="fas fa-server fa-3x mb-3"></i>
-                <h3 class="card-title">{{ $stats['total_jobs'] ?? 0 }}</h3>
-                <p class="card-text">Jobs in Warteschlange</p>
-                <small>{{ $stats['failed_jobs'] ?? 0 }} fehlgeschlagen</small>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Quick Actions -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-bolt me-2"></i>Schnellaktionen
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <button class="btn btn-success w-100" onclick="startAllWorkers()">
-                            <i class="fas fa-play me-1"></i>Alle Worker starten
-                        </button>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <button class="btn btn-warning w-100" onclick="restartAllWorkers()">
-                            <i class="fas fa-redo me-1"></i>Alle Worker neustarten
-                        </button>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <button class="btn btn-danger w-100" onclick="stopAllWorkers()">
-                            <i class="fas fa-stop me-1"></i>Alle Worker stoppen
-                        </button>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <button class="btn btn-info w-100" onclick="retryFailedJobs()">
-                            <i class="fas fa-retry me-1"></i>Failed Jobs wiederholen
-                        </button>
-                    </div>
+        <!-- Total Workers -->
+        <div class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6">
+            <dt>
+                <div class="absolute rounded-md bg-green-500 p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                    </svg>
+                </div>
+                <p class="ml-16 truncate text-sm font-medium text-gray-500">Worker Prozesse</p>
+            </dt>
+            <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                <p class="text-2xl font-semibold text-gray-900">{{ $stats['total_workers'] ?? 0 }}</p>
+                <p class="ml-2 flex items-baseline text-sm font-semibold text-green-600">
+                    {{ $stats['running_workers'] ?? 0 }} laufend
+                </p>
+            </dd>
+        </div>
+
+        <!-- Total Jobs -->
+        <div class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6">
+            <dt>
+                <div class="absolute rounded-md bg-yellow-500 p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+                    </svg>
+                </div>
+                <p class="ml-16 truncate text-sm font-medium text-gray-500">Jobs in Warteschlange</p>
+            </dt>
+            <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                <p class="text-2xl font-semibold text-gray-900">{{ $stats['total_jobs'] ?? 0 }}</p>
+                @if(($stats['failed_jobs'] ?? 0) > 0)
+                    <p class="ml-2 flex items-baseline text-sm font-semibold text-red-600">
+                        {{ $stats['failed_jobs'] }} fehlgeschlagen
+                    </p>
+                @endif
+            </dd>
+        </div>
+
+        <!-- System Status -->
+        <div class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6">
+            <dt>
+                <div class="absolute rounded-md bg-blue-500 p-3">
+                    <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3V6a3 3 0 013-3h13.5a3 3 0 013 3v5.25a3 3 0 01-3 3m-16.5 0a3 3 0 013 3v6.75a3 3 0 01-3 3h13.5a3 3 0 01-3-3v-6.75a3 3 0 013-3m-16.5 0h16.5" />
+                    </svg>
+                </div>
+                <p class="ml-16 truncate text-sm font-medium text-gray-500">System Status</p>
+            </dt>
+            <dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
+                <p class="text-2xl font-semibold text-green-600">Online</p>
+                <div class="ml-2 flex items-center">
+                    <div class="h-2 w-2 rounded-full bg-green-400"></div>
+                </div>
+            </dd>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="rounded-lg bg-white shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Schnellaktionen</h3>
+            <div class="mt-5">
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <button onclick="startAllWorkers()" class="inline-flex items-center justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600">
+                        <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                        </svg>
+                        Alle Worker starten
+                    </button>
+                    <button onclick="restartAllWorkers()" class="inline-flex items-center justify-center rounded-md bg-yellow-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-600">
+                        <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        Alle Worker neustarten
+                    </button>
+                    <button onclick="stopAllWorkers()" class="inline-flex items-center justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">
+                        <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" />
+                        </svg>
+                        Alle Worker stoppen
+                    </button>
+                    <button onclick="retryFailedJobs()" class="inline-flex items-center justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600">
+                        <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        Failed Jobs wiederholen
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Workers Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-users me-2"></i>Worker Prozesse
-                </h5>
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addWorkerModal">
-                    <i class="fas fa-plus me-1"></i>Worker hinzufügen
-                </button>
+    <!-- Workers Section -->
+    <div class="rounded-lg bg-white shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="sm:flex sm:items-center">
+                <div class="sm:flex-auto">
+                    <h3 class="text-base font-semibold leading-6 text-gray-900">Worker Prozesse</h3>
+                    <p class="mt-2 text-sm text-gray-700">Verwaltung und Überwachung aller Queue-Worker</p>
+                </div>
+                <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+                    <button type="button" onclick="openAddWorkerModal()" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Worker hinzufügen
+                    </button>
+                </div>
             </div>
-            <div class="card-body">
-                @if(empty($workers))
-                    <div class="text-center py-4">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Keine Worker konfiguriert</p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWorkerModal">
-                            Ersten Worker hinzufügen
+            
+            @if($workers->isEmpty())
+                <div class="mt-6 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-semibold text-gray-900">Keine Worker</h3>
+                    <p class="mt-1 text-sm text-gray-500">Erstellen Sie Ihren ersten Worker, um zu beginnen.</p>
+                    <div class="mt-6">
+                        <button type="button" onclick="openAddWorkerModal()" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                            <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                            </svg>
+                            Neuen Worker erstellen
                         </button>
                     </div>
-                @else
-                    <div class="row">
-                        @foreach($workers as $worker)
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="card worker-card h-100">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="card-title mb-0">{{ $worker->name }}</h6>
-                                            <span class="badge status-badge {{ $worker->is_running ? 'bg-success' : 'bg-secondary' }}">
-                                                {{ $worker->is_running ? 'Läuft' : 'Gestoppt' }}
+                </div>
+            @else
+                <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach($workers as $worker)
+                        <div class="col-span-1 divide-y divide-gray-200 rounded-lg bg-white border border-gray-200 shadow-sm">
+                            <div class="flex w-full items-center justify-between space-x-6 p-6">
+                                <div class="flex-1 truncate">
+                                    <div class="flex items-center space-x-3">
+                                        <h3 class="truncate text-sm font-medium text-gray-900">{{ $worker->name }}</h3>
+                                        @if($worker->is_running ?? false)
+                                            <span class="inline-flex flex-shrink-0 items-center rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                Läuft
                                             </span>
-                                        </div>
-                                        <p class="card-text small text-muted mb-2">
-                                            Queue: <strong>{{ $worker->queue }}</strong><br>
-                                            Timeout: {{ $worker->timeout }}s<br>
-                                            Memory: {{ $worker->memory }}MB
-                                        </p>
-                                        @if($worker->is_running)
-                                            <p class="card-text small">
-                                                <i class="fas fa-clock me-1"></i>
-                                                Gestartet: {{ $worker->started_at ? $worker->started_at->diffForHumans() : 'Unbekannt' }}
-                                            </p>
+                                        @else
+                                            <span class="inline-flex flex-shrink-0 items-center rounded-full bg-gray-50 px-1.5 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                                                Gestoppt
+                                            </span>
                                         @endif
-                                        <div class="btn-group w-100" role="group">
-                                            @if($worker->is_running)
-                                                <button class="btn btn-warning btn-sm" onclick="stopWorker({{ $worker->id }})">
-                                                    <i class="fas fa-stop"></i>
-                                                </button>
-                                                <button class="btn btn-info btn-sm" onclick="restartWorker({{ $worker->id }})">
-                                                    <i class="fas fa-redo"></i>
-                                                </button>
-                                            @else
-                                                <button class="btn btn-success btn-sm" onclick="startWorker({{ $worker->id }})">
-                                                    <i class="fas fa-play"></i>
-                                                </button>
-                                            @endif
-                                            <button class="btn btn-danger btn-sm" onclick="deleteWorker({{ $worker->id }})">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
                                     </div>
+                                    <p class="mt-1 truncate text-sm text-gray-500">Queue: {{ $worker->queue }}</p>
+                                    <p class="mt-1 text-sm text-gray-500">
+                                        Timeout: {{ $worker->timeout }}s | Memory: {{ $worker->memory }}MB
+                                    </p>
+                                    @if($worker->is_running ?? false)
+                                        <p class="mt-1 text-xs text-gray-400">
+                                            Gestartet: {{ $worker->started_at ? $worker->started_at->diffForHumans() : 'Unbekannt' }}
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
+                            <div>
+                                <div class="-mt-px flex divide-x divide-gray-200">
+                                    @if($worker->is_running ?? false)
+                                        <div class="flex w-0 flex-1">
+                                            <button onclick="stopWorker({{ $worker->id }})" class="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-yellow-600 hover:text-yellow-500">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" />
+                                                </svg>
+                                                Stoppen
+                                            </button>
+                                        </div>
+                                        <div class="-ml-px flex w-0 flex-1">
+                                            <button onclick="restartWorker({{ $worker->id }})" class="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-blue-600 hover:text-blue-500">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                                </svg>
+                                                Neustarten
+                                            </button>
+                                        </div>
+                                    @else
+                                        <div class="flex w-0 flex-1">
+                                            <button onclick="startWorker({{ $worker->id }})" class="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-green-600 hover:text-green-500">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                                                </svg>
+                                                Starten
+                                            </button>
+                                        </div>
+                                        <div class="-ml-px flex w-0 flex-1">
+                                            <button onclick="deleteWorker({{ $worker->id }})" class="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-red-600 hover:text-red-500">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                </svg>
+                                                Löschen
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </div>
-</div>
 
-<!-- Queues Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-list-ul me-2"></i>Queue Konfigurationen
-                </h5>
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addQueueModal">
-                    <i class="fas fa-plus me-1"></i>Queue hinzufügen
-                </button>
+    <!-- Queues Section -->
+    <div class="rounded-lg bg-white shadow">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="sm:flex sm:items-center">
+                <div class="sm:flex-auto">
+                    <h3 class="text-base font-semibold leading-6 text-gray-900">Queue Konfigurationen</h3>
+                    <p class="mt-2 text-sm text-gray-700">Verwaltung und Konfiguration aller Queues</p>
+                </div>
+                <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
+                    <button type="button" onclick="openAddQueueModal()" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Queue hinzufügen
+                    </button>
+                </div>
             </div>
-            <div class="card-body">
-                @if(empty($queues))
-                    <div class="text-center py-4">
-                        <i class="fas fa-list-ul fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Keine Queues konfiguriert</p>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQueueModal">
-                            Erste Queue hinzufügen
+            
+            @if($queues->isEmpty())
+                <div class="mt-6 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-semibold text-gray-900">Keine Queues</h3>
+                    <p class="mt-1 text-sm text-gray-500">Erstellen Sie Ihre erste Queue-Konfiguration.</p>
+                    <div class="mt-6">
+                        <button type="button" onclick="openAddQueueModal()" class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                            <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                            </svg>
+                            Neue Queue erstellen
                         </button>
                     </div>
-                @else
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                </div>
+            @else
+                <div class="mt-6 overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-300">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Priorität</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Jobs</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-gray-500">Status</th>
+                                <th scope="col" class="relative px-6 py-3"><span class="sr-only">Aktionen</span></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            @foreach($queues as $queue)
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Connection</th>
-                                    <th>Priorität</th>
-                                    <th>Worker</th>
-                                    <th>Jobs</th>
-                                    <th>Status</th>
-                                    <th>Aktionen</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($queues as $queue)
-                                    <tr>
-                                        <td>
-                                            <strong>{{ $queue->name }}</strong>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                                        <div>
+                                            <div class="font-medium text-gray-900">{{ $queue->name }}</div>
                                             @if($queue->description)
-                                                <br><small class="text-muted">{{ $queue->description }}</small>
+                                                <div class="text-gray-500">{{ $queue->description }}</div>
                                             @endif
-                                        </td>
-                                        <td>{{ $queue->connection }}</td>
-                                        <td>
-                                            <span class="badge bg-info">{{ $queue->priority }}</span>
-                                        </td>
-                                        <td>{{ $queue->worker_count ?? 0 }}</td>
-                                        <td>
-                                            <span class="badge bg-primary">{{ $queue->pending_jobs ?? 0 }}</span>
-                                            @if(($queue->failed_jobs ?? 0) > 0)
-                                                <span class="badge bg-danger">{{ $queue->failed_jobs }} failed</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge {{ $queue->is_active ? 'bg-success' : 'bg-secondary' }}">
-                                                {{ $queue->is_active ? 'Aktiv' : 'Inaktiv' }}
+                                        </div>
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                                            {{ $queue->priority }}
+                                        </span>
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                        <div class="flex space-x-2">
+                                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                                                {{ $queue->pending_jobs ?? 0 }} wartend
                                             </span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-success" onclick="startQueueWorkers({{ $queue->id }})" title="Worker starten">
-                                                    <i class="fas fa-play"></i>
-                                                </button>
-                                                <button class="btn btn-warning" onclick="stopQueueWorkers({{ $queue->id }})" title="Worker stoppen">
-                                                    <i class="fas fa-stop"></i>
-                                                </button>
-                                                <button class="btn btn-info" onclick="clearQueueJobs({{ $queue->id }})" title="Jobs löschen">
-                                                    <i class="fas fa-broom"></i>
-                                                </button>
-                                                <button class="btn btn-danger" onclick="clearQueueFailedJobs({{ $queue->id }})" title="Failed Jobs löschen">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
-            </div>
+                                            @if(($queue->failed_jobs ?? 0) > 0)
+                                                <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                                                    {{ $queue->failed_jobs }} fehlgeschlagen
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                        @if($queue->is_active)
+                                            <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                                                Aktiv
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
+                                                Inaktiv
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                        <div class="flex justify-end space-x-2">
+                                            <button onclick="startQueueWorkers({{ $queue->id }})" class="text-green-600 hover:text-green-900" title="Worker starten">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                                                </svg>
+                                            </button>
+                                            <button onclick="stopQueueWorkers({{ $queue->id }})" class="text-yellow-600 hover:text-yellow-900" title="Worker stoppen">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" />
+                                                </svg>
+                                            </button>
+                                            <button onclick="clearQueueJobs({{ $queue->id }})" class="text-blue-600 hover:text-blue-900" title="Jobs löschen">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                                </svg>
+                                            </button>
+                                            <button onclick="clearQueueFailedJobs({{ $queue->id }})" class="text-red-600 hover:text-red-900" title="Failed Jobs löschen">
+                                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
     </div>
-</div>
 
-<!-- System Information -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-info-circle me-2"></i>System Information
-                </h5>
+    <!-- System Information -->
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <!-- System Info -->
+        <div class="rounded-lg bg-white shadow">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-base font-semibold leading-6 text-gray-900">System Information</h3>
+                <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-base font-normal text-gray-900">Laravel Version</dt>
+                        <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+                            <div class="flex items-baseline text-2xl font-semibold text-indigo-600">
+                                {{ app()->version() }}
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-base font-normal text-gray-900">PHP Version</dt>
+                        <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+                            <div class="flex items-baseline text-2xl font-semibold text-indigo-600">
+                                {{ PHP_VERSION }}
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-base font-normal text-gray-900">Queue Driver</dt>
+                        <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+                            <div class="flex items-baseline text-2xl font-semibold text-indigo-600">
+                                {{ config('queue.default') }}
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-base font-normal text-gray-900">Memory Limit</dt>
+                        <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+                            <div class="flex items-baseline text-2xl font-semibold text-indigo-600">
+                                {{ ini_get('memory_limit') }}
+                            </div>
+                        </dd>
+                    </div>
+                </dl>
             </div>
-            <div class="card-body">
-                <dl class="row">
-                    <dt class="col-sm-6">Laravel Version:</dt>
-                    <dd class="col-sm-6">{{ app()->version() }}</dd>
-                    
-                    <dt class="col-sm-6">PHP Version:</dt>
-                    <dd class="col-sm-6">{{ PHP_VERSION }}</dd>
-                    
-                    <dt class="col-sm-6">Queue Driver:</dt>
-                    <dd class="col-sm-6">{{ config('queue.default') }}</dd>
-                    
-                    <dt class="col-sm-6">Memory Limit:</dt>
-                    <dd class="col-sm-6">{{ ini_get('memory_limit') }}</dd>
-                    
-                    <dt class="col-sm-6">Max Execution Time:</dt>
-                    <dd class="col-sm-6">{{ ini_get('max_execution_time') }}s</dd>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div class="rounded-lg bg-white shadow">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-base font-semibold leading-6 text-gray-900">Performance Metriken</h3>
+                <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-base font-normal text-gray-900">Jobs heute</dt>
+                        <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+                            <div class="flex items-baseline text-2xl font-semibold text-green-600">
+                                {{ $stats['jobs_today'] ?? 0 }}
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-base font-normal text-gray-900">Erfolgsrate</dt>
+                        <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+                            <div class="flex items-baseline text-2xl font-semibold text-green-600">
+                                {{ $stats['success_rate'] ?? 'N/A' }}%
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-base font-normal text-gray-900">Ø Job-Zeit</dt>
+                        <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+                            <div class="flex items-baseline text-2xl font-semibold text-blue-600">
+                                {{ $stats['avg_job_time'] ?? 'N/A' }}
+                            </div>
+                        </dd>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-base font-normal text-gray-900">Letzte Aktualisierung</dt>
+                        <dd class="mt-1 flex items-baseline justify-between md:block lg:flex">
+                            <div class="flex items-baseline text-2xl font-semibold text-gray-600">
+                                {{ now()->format('H:i:s') }}
+                            </div>
+                        </dd>
+                    </div>
                 </dl>
             </div>
         </div>
     </div>
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-chart-line me-2"></i>Performance Metriken
-                </h5>
-            </div>
-            <div class="card-body">
-                <dl class="row">
-                    <dt class="col-sm-6">Durchschnittliche Job-Zeit:</dt>
-                    <dd class="col-sm-6">{{ $stats['avg_job_time'] ?? 'N/A' }}</dd>
-                    
-                    <dt class="col-sm-6">Jobs heute:</dt>
-                    <dd class="col-sm-6">{{ $stats['jobs_today'] ?? 0 }}</dd>
-                    
-                    <dt class="col-sm-6">Erfolgsrate:</dt>
-                    <dd class="col-sm-6">{{ $stats['success_rate'] ?? 'N/A' }}%</dd>
-                    
-                    <dt class="col-sm-6">Letzte Aktualisierung:</dt>
-                    <dd class="col-sm-6">{{ now()->format('d.m.Y H:i:s') }}</dd>
-                </dl>
-            </div>
-        </div>
-    </div>
 </div>
-
-<!-- Add Worker Modal -->
-<div class="modal fade" id="addWorkerModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Worker hinzufügen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="addWorkerForm">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="workerName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="workerName" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="workerQueue" class="form-label">Queue</label>
-                        <input type="text" class="form-control" id="workerQueue" name="queue" value="default" required>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="workerTimeout" class="form-label">Timeout (Sekunden)</label>
-                                <input type="number" class="form-control" id="workerTimeout" name="timeout" value="60" min="1">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="workerMemory" class="form-label">Memory Limit (MB)</label>
-                                <input type="number" class="form-control" id="workerMemory" name="memory" value="128" min="64">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="workerAutoStart" name="auto_start" checked>
-                            <label class="form-check-label" for="workerAutoStart">
-                                Automatisch starten
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="submit" class="btn btn-primary">Worker erstellen</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Add Queue Modal -->
-<div class="modal fade" id="addQueueModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Queue hinzufügen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="addQueueForm">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="queueName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="queueName" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="queueDescription" class="form-label">Beschreibung</label>
-                        <textarea class="form-control" id="queueDescription" name="description" rows="2"></textarea>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="queueConnection" class="form-label">Connection</label>
-                                <select class="form-control" id="queueConnection" name="connection" required>
-                                    <option value="database">Database</option>
-                                    <option value="redis">Redis</option>
-                                    <option value="sync">Sync</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="queuePriority" class="form-label">Priorität</label>
-                                <input type="number" class="form-control" id="queuePriority" name="priority" value="1" min="1" max="10">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="queueActive" name="is_active" checked>
-                            <label class="form-check-label" for="queueActive">
-                                Aktiv
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="submit" class="btn btn-primary">Queue erstellen</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@endsection
 
 @push('scripts')
 <script>
-// Form Submissions
-$('#addWorkerForm').on('submit', function(e) {
-    e.preventDefault();
-    
-    const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
-    $.post(`/${baseUrl}/workers`, $(this).serialize())
-        .done(function(response) {
-            $('#addWorkerModal').modal('hide');
-            showAlert('Worker erfolgreich erstellt', 'success');
-            setTimeout(refreshData, 1000);
-        })
-        .fail(function(xhr) {
-            showAlert('Fehler beim Erstellen des Workers: ' + xhr.responseJSON?.message, 'danger');
-        });
-});
-
-$('#addQueueForm').on('submit', function(e) {
-    e.preventDefault();
-    
-    const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
-    $.post(`/${baseUrl}/queues`, $(this).serialize())
-        .done(function(response) {
-            $('#addQueueModal').modal('hide');
-            showAlert('Queue erfolgreich erstellt', 'success');
-            setTimeout(refreshData, 1000);
-        })
-        .fail(function(xhr) {
-            showAlert('Fehler beim Erstellen der Queue: ' + xhr.responseJSON?.message, 'danger');
-        });
-});
+// Dashboard-spezifische Funktionen (Worker/Queue-Management ist bereits im Layout definiert)
 
 // Quick Actions
 function startAllWorkers() {
@@ -483,6 +495,38 @@ function retryFailedJobs() {
     }
 }
 
-// Dashboard-spezifische Funktionen (Worker/Queue-Management ist bereits im Layout definiert)
+// Modal Functions
+function openAddWorkerModal() {
+    showAlert('Worker-Modal wird implementiert', 'info');
+}
+
+function openAddQueueModal() {
+    showAlert('Queue-Modal wird implementiert', 'info');
+}
+
+// Form Submissions
+function submitWorkerForm(formData) {
+    const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+    $.post(`/${baseUrl}/workers`, formData)
+        .done(function(response) {
+            showAlert('Worker erfolgreich erstellt', 'success');
+            setTimeout(refreshData, 1000);
+        })
+        .fail(function(xhr) {
+            showAlert('Fehler beim Erstellen des Workers: ' + xhr.responseJSON?.message, 'danger');
+        });
+}
+
+function submitQueueForm(formData) {
+    const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+    $.post(`/${baseUrl}/queues`, formData)
+        .done(function(response) {
+            showAlert('Queue erfolgreich erstellt', 'success');
+            setTimeout(refreshData, 1000);
+        })
+        .fail(function(xhr) {
+            showAlert('Fehler beim Erstellen der Queue: ' + xhr.responseJSON?.message, 'danger');
+        });
+}
 </script>
 @endpush
