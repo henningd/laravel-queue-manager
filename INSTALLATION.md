@@ -1,6 +1,12 @@
 # Installation Guide - Laravel Queue Manager
 
-## Schnellinstallation
+## ⚠️ Wichtiger Hinweis
+
+Dieses Package ist noch nicht auf Packagist veröffentlicht. Für die Installation stehen folgende Optionen zur Verfügung:
+
+## Option 1: Über Packagist (Empfohlen für Produktion)
+
+**Erst verfügbar nach Veröffentlichung auf Packagist.org**
 
 ### 1. Package installieren
 ```bash
@@ -12,16 +18,40 @@ composer require henningd/laravel-queue-manager
 php artisan queue-manager:install
 ```
 
-Das war's! Das Package ist jetzt installiert und einsatzbereit.
+Siehe [`PUBLISHING.md`](PUBLISHING.md) für Anweisungen zur Veröffentlichung.
+
+## Option 2: Lokale Installation (Entwicklung/Testing)
+
+Siehe [`LOCAL_INSTALLATION.md`](LOCAL_INSTALLATION.md) für detaillierte Anweisungen.
+
+### Schnelle lokale Installation über Git:
+
+1. **Repository in composer.json hinzufügen:**
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/henningd/laravel-queue-manager.git"
+        }
+    ],
+    "require": {
+        "henningd/laravel-queue-manager": "dev-main"
+    }
+}
+```
+
+2. **Package installieren:**
+```bash
+composer install
+```
 
 ## Manuelle Installation
 
 Falls Sie die Installation Schritt für Schritt durchführen möchten:
 
 ### 1. Composer Installation
-```bash
-composer require henningd/laravel-queue-manager
-```
+Verwenden Sie eine der oben genannten Methoden.
 
 ### 2. Service Provider registrieren (Laravel < 5.5)
 Fügen Sie den Service Provider in `config/app.php` hinzu:

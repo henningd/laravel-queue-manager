@@ -15,28 +15,53 @@ Ein umfassendes Laravel-Package für die Verwaltung und Überwachung von Queues 
 
 ## Installation
 
-### 1. Package installieren
+> ⚠️ **Wichtiger Hinweis:** Dieses Package ist noch nicht auf Packagist veröffentlicht.
+>
+> Für detaillierte Installationsanweisungen siehe:
+> - [`INSTALLATION.md`](INSTALLATION.md) - Vollständige Installationsanleitung
+> - [`LOCAL_INSTALLATION.md`](LOCAL_INSTALLATION.md) - Lokale Installation für Entwicklung
+> - [`PUBLISHING.md`](PUBLISHING.md) - Anweisungen zur Veröffentlichung auf Packagist
 
-```bash
-composer require henningd/laravel-queue-manager
+### Schnelle lokale Installation
+
+Für Entwicklung und Testing können Sie das Package direkt über Git installieren:
+
+1. **Repository in composer.json hinzufügen:**
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/henningd/laravel-queue-manager.git"
+        }
+    ],
+    "require": {
+        "henningd/laravel-queue-manager": "dev-main"
+    }
+}
 ```
 
-### 2. Package konfigurieren
+2. **Package installieren:**
+```bash
+composer install
+```
 
+3. **Package konfigurieren:**
 ```bash
 php artisan queue-manager:install
 ```
 
-Dieser Befehl:
-- Publiziert die Konfigurationsdatei
-- Publiziert die Migrationen
-- Publiziert die Views
-- Führt die Migrationen aus
-- Erstellt Standard-Konfigurationen
+### Nach Veröffentlichung auf Packagist
 
-### 3. Manuelle Installation (optional)
+```bash
+# Standard-Installation (verfügbar nach Veröffentlichung)
+composer require henningd/laravel-queue-manager
+php artisan queue-manager:install
+```
 
-Falls Sie die Installation manuell durchführen möchten:
+### Manuelle Installation
+
+Falls Sie die Installation Schritt für Schritt durchführen möchten:
 
 ```bash
 # Konfiguration publizieren
