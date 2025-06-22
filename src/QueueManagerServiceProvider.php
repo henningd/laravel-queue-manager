@@ -25,22 +25,22 @@ class QueueManagerServiceProvider extends ServiceProvider
         // Publish config
         $this->publishes([
             __DIR__.'/../config/queue-manager.php' => config_path('queue-manager.php'),
-        ], 'queue-manager-config');
+        ], 'config');
 
         // Publish migrations
         $this->publishes([
             __DIR__.'/../database/migrations/' => database_path('migrations'),
-        ], 'queue-manager-migrations');
+        ], 'migrations');
 
         // Publish views
         $this->publishes([
             __DIR__.'/../resources/views/' => resource_path('views/vendor/queue-manager'),
-        ], 'queue-manager-views');
+        ], 'views');
 
         // Publish assets
         $this->publishes([
             __DIR__.'/../resources/assets/' => public_path('vendor/queue-manager'),
-        ], 'queue-manager-assets');
+        ], 'assets');
 
         // Load migrations
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
