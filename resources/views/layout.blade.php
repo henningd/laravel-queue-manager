@@ -159,7 +159,8 @@
         
         // Worker Management Functions
         function startWorker(workerId) {
-            $.post(`{{ route('queue-manager.workers.start', '') }}/${workerId}`)
+            const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+            $.post(`/${baseUrl}/workers/${workerId}/start`)
                 .done(function(response) {
                     showAlert('Worker erfolgreich gestartet', 'success');
                     setTimeout(refreshData, 1000);
@@ -170,7 +171,8 @@
         }
         
         function stopWorker(workerId) {
-            $.post(`{{ route('queue-manager.workers.stop', '') }}/${workerId}`)
+            const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+            $.post(`/${baseUrl}/workers/${workerId}/stop`)
                 .done(function(response) {
                     showAlert('Worker erfolgreich gestoppt', 'success');
                     setTimeout(refreshData, 1000);
@@ -181,7 +183,8 @@
         }
         
         function restartWorker(workerId) {
-            $.post(`{{ route('queue-manager.workers.restart', '') }}/${workerId}`)
+            const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+            $.post(`/${baseUrl}/workers/${workerId}/restart`)
                 .done(function(response) {
                     showAlert('Worker erfolgreich neugestartet', 'success');
                     setTimeout(refreshData, 2000);
@@ -193,8 +196,9 @@
         
         function deleteWorker(workerId) {
             if (confirm('Sind Sie sicher, dass Sie diesen Worker löschen möchten?')) {
+                const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
                 $.ajax({
-                    url: `{{ route('queue-manager.workers.delete', '') }}/${workerId}`,
+                    url: `/${baseUrl}/workers/${workerId}`,
                     type: 'DELETE'
                 })
                 .done(function(response) {
@@ -209,7 +213,8 @@
         
         // Queue Management Functions
         function startQueueWorkers(queueId) {
-            $.post(`{{ route('queue-manager.queues.start-workers', '') }}/${queueId}`)
+            const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+            $.post(`/${baseUrl}/queues/${queueId}/start-workers`)
                 .done(function(response) {
                     showAlert('Queue-Worker erfolgreich gestartet', 'success');
                     setTimeout(refreshData, 1000);
@@ -220,7 +225,8 @@
         }
         
         function stopQueueWorkers(queueId) {
-            $.post(`{{ route('queue-manager.queues.stop-workers', '') }}/${queueId}`)
+            const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+            $.post(`/${baseUrl}/queues/${queueId}/stop-workers`)
                 .done(function(response) {
                     showAlert('Queue-Worker erfolgreich gestoppt', 'success');
                     setTimeout(refreshData, 1000);
@@ -232,7 +238,8 @@
         
         function clearQueueJobs(queueId) {
             if (confirm('Sind Sie sicher, dass Sie alle Jobs in dieser Queue löschen möchten?')) {
-                $.post(`{{ route('queue-manager.queues.clear-jobs', '') }}/${queueId}`)
+                const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+                $.post(`/${baseUrl}/queues/${queueId}/clear-jobs`)
                     .done(function(response) {
                         showAlert('Queue-Jobs erfolgreich gelöscht', 'success');
                         setTimeout(refreshData, 1000);
@@ -245,7 +252,8 @@
         
         function clearQueueFailedJobs(queueId) {
             if (confirm('Sind Sie sicher, dass Sie alle fehlgeschlagenen Jobs in dieser Queue löschen möchten?')) {
-                $.post(`{{ route('queue-manager.queues.clear-failed', '') }}/${queueId}`)
+                const baseUrl = '{{ config("queue-manager.route.prefix", "queue-manager") }}';
+                $.post(`/${baseUrl}/queues/${queueId}/clear-failed`)
                     .done(function(response) {
                         showAlert('Fehlgeschlagene Jobs erfolgreich gelöscht', 'success');
                         setTimeout(refreshData, 1000);
