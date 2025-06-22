@@ -477,5 +477,7 @@ function retryFailedJobs() {
             });
     }
 }
+
+// Dashboard-spezifische Funktionen (Worker/Queue-Management ist bereits im Layout definiert)
 </script>
 @endpush

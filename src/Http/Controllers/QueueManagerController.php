@@ -17,7 +17,51 @@ class QueueManagerController extends Controller
      */
     public function dashboard()
     {
-        return view('queue-manager::dashboard');
+        try {
+            // Statistiken sammeln
+            $stats = [
+                'total_queues' => QueueConfiguration::count(),
+                'active_queues' => QueueConfiguration::where('is_active', true)->count(),
+                'total_workers' => QueueWorker::count(),
+                'running_workers' => QueueWorker::where('status', 'running')->count(),
+                'total_jobs' => $this->getTotalJobs(),
+                'failed_jobs' => $this->getFailedJobsCount(),
+                'avg_job_time' => 'N/A',
+                'jobs_today' => 0,
+                'success_rate' => 'N/A'
+            ];
+
+            // Worker laden
+            $workers = QueueWorker::orderBy('name')->get()->map(function ($worker) {
+                $worker->updateStatus();
+                return $worker;
+            });
+
+            // Queues laden
+            $queues = QueueConfiguration::orderBy('priority', 'desc')->get();
+
+            return view('queue-manager::dashboard', compact('stats', 'workers', 'queues'));
+        } catch (\Exception $e) {
+            Log::error('Dashboard Error: ' . $e->getMessage());
+            
+            // Fallback-Daten bei Fehlern
+            $stats = [
+                'total_queues' => 0,
+                'active_queues' => 0,
+                'total_workers' => 0,
+                'running_workers' => 0,
+                'total_jobs' => 0,
+                'failed_jobs' => 0,
+                'avg_job_time' => 'N/A',
+                'jobs_today' => 0,
+                'success_rate' => 'N/A'
+            ];
+            
+            $workers = collect();
+            $queues = collect();
+
+            return view('queue-manager::dashboard', compact('stats', 'workers', 'queues'));
+        }
     }
 
     /**
@@ -336,5 +380,23 @@ class QueueManagerController extends Controller
     private function getWorkersByQueue()
     {
         return [];
+    }
+
+    private function getTotalJobs()
+    {
+        try {
+            return DB::table('jobs')->count();
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    private function getFailedJobsCount()
+    {
+        try {
+            return DB::table('failed_jobs')->count();
+        } catch (\Exception $e) {
+            return 0;
+        }
     }
 }
